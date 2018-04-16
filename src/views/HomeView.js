@@ -1,12 +1,14 @@
 import Surface              from 'famous/core/Surface.js';
 import {View}               from 'arva-js/core/View.js';
 import {layout, event }     from 'arva-js/layout/Decorators.js';
+import {Button}             from 'arva-kit/buttons/Button.js';
+
 
 export class HomeView extends View {
 
     constructor(options){
       super(options);
-      this.options.userData.accounts.map( (account,index) => this.addRenderable( new valueBox({account: account}), index, layout.dock.top(160) ) );
+      this.options.userData.accounts.map( (account,index) => this.addRenderable( new valueBox({account: account}), index, layout.dockSpace(32), layout.dock.top(128) ) );
     }
 
     @layout.dock.top(64)
@@ -21,6 +23,7 @@ export class HomeView extends View {
         'line-height': '64px'
       }
     });
+
     
     
     // test = new valueBox({account: this.options.userData.accounts[1]});
@@ -84,7 +87,6 @@ class Value extends View {
     background = new Surface({
       content:`${this.options.cash} ${this.options.currency}`,
       properties:{
-        // 'border-bottom': '1px solid rgba(0, 0, 0, 0.1)',
         'text-align': 'right',
         'font-size': '18px',
         'line-height': '20px',
@@ -112,5 +114,48 @@ class valueBox extends View {
   @layout.size( 0.9, 40 )
   @layout.translate(0,0,40)
   valueTab = new Value({cash: this.options.account.cash, currency: this.options.account.currency});
+
+
+  @layout.align(0.05,0.31)
+  @layout.size(0.3,88)
+  depositButton = new Button({
+    content:'lalala',
+    properties:{
+    },
+    useBoxShadow: false,
+    backgroundProperties: {
+      borderRadius: '0px',
+      backgroundColor: 'transparent'
+    }
+
+  });
+  @layout.align(0.35,0.31)
+  @layout.size(0.3,88)
+  withdrawButton = new Button({
+    content:'lalala',
+    properties:{
+    },
+    useBoxShadow: false,
+    backgroundProperties: {
+      borderRadius: '0px',
+      backgroundColor: 'transparent'
+    }
+
+  });
+  @layout.align(0.65,0.31)
+  @layout.size(0.3,88)
+  transferButton = new Button({
+    content:'lalala',
+    properties:{
+      content: 'test'
+    },
+    useBoxShadow: false,
+    backgroundProperties: {
+      borderRadius: '0px',
+      content: 'ha ha ha',
+      backgroundColor: 'transparent'
+    }
+
+  });
 
 }
