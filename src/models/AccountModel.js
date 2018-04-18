@@ -5,9 +5,11 @@
 import {Model}              from 'arva-js/core/Model.js';
 import {PrioritisedArray}   from 'arva-js/data/PrioritisedArray.js';
 
-export class User extends Model {
-    get password() {}
-    get username() {}
+export class Account extends Model {
+    get cash() {}
+    get currency() {}
+    get name() {}
+    get uid() {}
     get timestamp() { return Date.now(); }          // last updated, numeric, ms since Unix epoch
     
 
@@ -16,8 +18,8 @@ export class User extends Model {
     }
 }
 
-export class Users extends PrioritisedArray {
+export class Accounts extends PrioritisedArray {
     constructor(dataSource = null, dataSnapshot = null, options = null, modelOptions = {}) {
-        super(User, dataSource, dataSnapshot, options, modelOptions);
+        super(Account, dataSource, dataSnapshot, options, modelOptions);
     }
 }

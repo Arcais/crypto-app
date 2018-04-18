@@ -76,7 +76,11 @@ export class App extends ArvaApp {
         Injection.get(Router).setDefault('Home', 'Index');
 
         /* Set default controller specifications */
-        Injection.get(Router).setControllerSpecs({});
+        Injection.get(Router).setControllerSpecs({
+            HomeController:{
+                
+            }
+        });
 
         let dialogManager = Injection.get(DialogManager);
         let menu = Injection.get(NavigationDrawer, {
