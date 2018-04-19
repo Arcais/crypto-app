@@ -94,14 +94,13 @@ export class HomeController extends Controller {
 
     if (!this.WithdrawView[accountID]) {
 
-      const account = {
-      "cash" : 3678.83,
-      "currency" : "BTC",
-      "name" : "Main Account",
-      "uid" : 1
-    };
+      const userRef = db.ref(`/Users/0/accounts/${accountID}`);
 
-      this.WithdrawView[accountID] = new WithdrawView({account, selectedCurrency: account.currency, withdrawnTotal: account.cash});
+      let accountDataPromise = await userRef.once('value');
+
+      const accountData = accountDataPromise.val();
+
+      this.WithdrawView[accountID] = new WithdrawView({account: accountData, selectedCurrency: accountData.currency, withdrawnTotal: accountData.cash});
 
       this.WithdrawView[accountID].on('Home', () => {
         this.router.go('Home','Index');
@@ -117,14 +116,13 @@ export class HomeController extends Controller {
 
     if (!this.TransferView[accountID]) {
 
-      const account = {
-      "cash" : 3678.83,
-      "currency" : "BTC",
-      "name" : "Main Account",
-      "uid" : 1
-    };
+      const userRef = db.ref(`/Users/0/accounts/${accountID}`);
 
-      this.TransferView[accountID] = new TransferView({account});
+      let accountDataPromise = await userRef.once('value');
+
+      const accountData = accountDataPromise.val();
+
+      this.TransferView[accountID] = new TransferView({account: accountData});
 
       this.TransferView[accountID].on('Home', () => {
         this.router.go('Home','Index');

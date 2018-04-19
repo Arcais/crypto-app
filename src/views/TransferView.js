@@ -11,16 +11,22 @@ import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js
 @layout.dockPadding(32)
 export class TransferView extends View {
 
+
+    @layout.fullSize()
+           .translate(0, 0, -1)
+    background = Surface.with({properties: {backgroundColor: 'rgb(230, 230, 230)'}});
+
+
     @layout.dock.top(32)
-    @layout.stick.center()
-    @layout.size(0.99,48)
-    transferInput = new CoinInputRow();
+           .stick.center()
+           .size(0.99,48)
+    transferInput = CoinInputRow.with();
 
 
 
     @layout.dockSpace(32)
-    @layout.dock.top(64)
-    buttons = new ButtonRow();
+           .dock.top(64)
+    buttons = ButtonRow.with();
 
 
 
@@ -31,8 +37,8 @@ export class TransferView extends View {
 class CoinInputRow extends View {
 
     @layout.stick.left()
-    @layout.size( true ,64)
-    transferField = new SingleLineInputSurface({
+           .size( true ,64)
+    transferField = SingleLineInputSurface.with({
       placeholder: 'Amount to transfer',
       activeColor: '#1c73ba',
       inactiveColor: '#3a3a3a',
@@ -51,12 +57,13 @@ class ButtonRow extends View {
       this._eventOutput.emit('Home');
     })
     @layout.stick.left()
-    @layout.size(1/2,64)
-    goBackButton = new WhiteTextButton({
+           .size(1/2,64)
+    goBackButton = WhiteTextButton.with({
       content: 'Go back',
       useBoxShadow: false,
+      bold: false,
       properties:{
-        fontSize: '16px'
+        fontSize: '18px'
       },
       backgroundProperties: {
         borderRadius: '4px 0px 0px 4px',
@@ -71,12 +78,13 @@ class ButtonRow extends View {
       this._eventOutput.emit('Home');
     })
     @layout.stick.right()
-    @layout.size(1/2,64)
-    transferButton = new WhiteTextButton({
+           .size(1/2,64)
+    transferButton = WhiteTextButton.with({
       content: 'Gimme emone',
       useBoxShadow: false,
+      bold: false,
       properties:{
-        fontSize: '16px'
+        fontSize: '18px'
       },
       backgroundProperties: {
         borderRadius: '0px 4px 4px 0px',

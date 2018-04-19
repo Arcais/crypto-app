@@ -87,7 +87,7 @@ export class App extends ArvaApp {
             //     }
             // }
         });
-        
+
         let menu = Injection.get(NavigationDrawer, {
             topMenuOptions: { defaultTitle: 'Arva Application' },
             sideMenu: {
@@ -114,3 +114,10 @@ export class App extends ArvaApp {
 }
 
 document.addEventListener('deviceready', App.initialize.bind(App));
+
+
+//TODO:
+//-update wtihdraw
+//-send data to firebase
+//-finish transfer functionality
+//-integrate THAT to firebase

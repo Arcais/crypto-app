@@ -9,89 +9,30 @@ import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js
   account: {},
   selectedCurrency: '',
   depositedMoney: '',
-  addedCash: 0
+  addedCash: 0,
+  httpGetChangeRate: function(fromCurrency, toCurrency, callback){
+
+    let xmlHttp = new XMLHttpRequest();
+
+    xmlHttp.onreadystatechange = function() { 
+      if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
+        callback(xmlHttp.responseText);
+      }
+    }
+
+    xmlHttp.open("GET", `https://min-api.cryptocompare.com/data/price?fsym=${fromCurrency}&tsyms=${toCurrency}`, true); // true for asynchronous 
+    xmlHttp.send(null);
+
+  }
+
 })
 @layout.dockPadding(32)
 export class DepositView extends View {
 
-    constructor(options){
-
-      super(options);
-
-      let httpGetChangeRate = function(fromCurrency, toCurrency, callback){
-
-          let xmlHttp = new XMLHttpRequest();
-
-          xmlHttp.onreadystatechange = function() { 
-              if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                  callback(xmlHttp.responseText);
-          }
-
-          xmlHttp.open("GET", `https://min-api.cryptocompare.com/data/price?fsym=${fromCurrency}&tsyms=${toCurrency}`, true); // true for asynchronous 
-          xmlHttp.send(null);
-
-      }
-
-      this._eventOutput.on('value',(newCash)=>{
-        this.options.addedCash = Number(newCash);
-        console.log(this.options.addedCash);
-        if(this.options.addedCash > 0){
-        console.log(this.options.addedCash);
-        console.log(this.options.account.currency);
-        console.log(this.options.selectedCurrency);
-        console.log(this.options.account.currency === this.options.selectedCurrency);
-
-          if(this.options.account.currency !== this.options.selectedCurrency){
-        console.log(this.options.addedCash);
-
-            let self = this; //I KNOW scope keeping is not safe but it's just a demo app and it doesn't need workarounds
-
-            httpGetChangeRate( this.options.selectedCurrency, this.options.account.currency, function(res){
-              let ratesModifier = JSON.parse(res);
-              console.log(self.options.cash);
-
-              console.log(self.options.addedCash);
-
-              self.options.depositedMoney = self.options.account.cash + (self.options.addedCash*ratesModifier[self.options.account.currency]);
-              console.log(self.options.depositedMoney);
-
-            });
-          }
-          else{
-            this.options.depositedMoney = this.options.account.cash + this.options.addedCash;
-              console.log(this.options.depositedMoney);
-          }
-        }
-      });
-
-      this._eventOutput.on('itemChosen',(newCurrency)=>{
-
-        let currentCurrency = this.options.account.currency;
-
-        let self = this; //I KNOW scope keeping is not safe but it's just a demo app and it doesn't need workarounds
-
-        this.options.selectedCurrency=newCurrency;
-
-        httpGetChangeRate(newCurrency,currentCurrency,function(res){
-          let ratesModifier = JSON.parse(res);
-          console.log(self.options.cash);
-
-          console.log(self.options.addedCash);
-
-          self.options.depositedMoney = self.options.account.cash + ( ( self.options.addedCash || 0 ) * ratesModifier[currentCurrency] );
-          console.log(self.options.depositedMoney);
-
-        });
-
-      });
-
-    }
-
-
     @layout.fullSize()
            .translate(0, 0, -1)
     background = Surface.with({properties: {backgroundColor: 'rgb(230, 230, 230)'}});
-    
+
     @layout.dock.top(64)
            .stick.center()
            .size(true,64)
@@ -104,17 +45,62 @@ export class DepositView extends View {
       }
     });
 
-    // @event.on('value', )
+    @event
+    .on('valueChange', function(newCash){
+
+        this.options.addedCash = Number(newCash);
+
+        if(this.options.addedCash > 0){
+
+          if(this.options.account.currency !== this.options.selectedCurrency){
+
+            let self = this; //I KNOW scope keeping is not safe but it's just a demo app and it doesn't need workarounds
+
+            this.options.httpGetChangeRate( this.options.selectedCurrency, this.options.account.currency, function(res){
+
+              let ratesModifier = JSON.parse(res);
+
+              self.options.depositedMoney = self.options.account.cash + (self.options.addedCash*ratesModifier[self.options.account.currency]);
+
+            });
+
+          }
+          else{
+
+            this.options.depositedMoney = this.options.account.cash + this.options.addedCash;
+
+          }
+
+        }
+
+    })
+    .on('itemChosen', function(newCurrency){
+
+        let currentCurrency = this.options.account.currency;
+
+        let self = this; //I KNOW scope keeping is not safe but it's just a demo app and it doesn't need workarounds
+
+        this.options.selectedCurrency=newCurrency;
+
+        this.options.httpGetChangeRate(newCurrency,currentCurrency,function(res){
+
+          let ratesModifier = JSON.parse(res);
+
+          self.options.depositedMoney = self.options.account.cash + ( ( self.options.addedCash || 0 ) * ratesModifier[currentCurrency] );
+
+        });
+
+    })
     @layout.dock.top(104)
            .stick.center()
            .size(0.99,48)
-    depositInput = CoinInputRow.with();
+    depositInput = CoinInputRow.with({accountCurrency: this.options.account.currency});
 
     @layout.dock.top(32)
            .stick.center()
            .size(true,32)
     currentBalance = Surface.with({
-      content: `Current balance: ${this.options.account.cash} ${this.options.account.currency}`,
+      content: `Current balance: ${this.options.account.cash.toFixed(2)} ${this.options.account.currency}`,
       properties:{
         'font-size':'18px',
         'text-align':'left',
@@ -126,7 +112,7 @@ export class DepositView extends View {
            .stick.center()
            .size(true,32)
     newBalance = Surface.with({
-      content: `New balance: ${this.options.depositedMoney} ${this.options.selectedCurrency}`,
+      content: `New balance: ${this.options.depositedMoney.toFixed(2)} ${this.options.account.currency}`,
       properties:{
         'font-size':'18px',
         'color': '#1c73ba',
@@ -145,6 +131,9 @@ export class DepositView extends View {
 }
 
 
+@bindings.setup({
+  accountCurrency: ''
+})
 class CoinInputRow extends View {
 
     @layout.stick.left()
@@ -158,29 +147,30 @@ class CoinInputRow extends View {
       }
     });
 
+
     @layout.stick.right()
            .size(1/6,64)
     coinDropdown = Dropdown.with({
       items:[{
         text: 'BTC',
         data: 'BTC',
-        selected: true //(this.options.selectedCurrency==='BTC')
+        selected: (this.options.accountCurrency==='BTC')
       },{
         text: 'ETH',
         data: 'ETH',
-        selected: false //(this.options.selectedCurrency==='ETH')
+        selected: (this.options.accountCurrency==='ETH')
       },{
         text: 'LTC',
         data: 'LTC',
-        selected: false //(this.options.selectedCurrency==='LTC')
+        selected: (this.options.accountCurrency==='LTC')
       },{
         text: 'XRP',
         data: 'XRP',
-        selected: false //(this.options.selectedCurrency==='XRP')
+        selected: (this.options.accountCurrency==='XRP')
       },{
         text: 'BCH',
         data: 'BCH',
-        selected: false //(this.options.selectedCurrency==='BCH')
+        selected:  (this.options.accountCurrency==='BCH')
       }],
       fakeWithNative: true
 
@@ -200,8 +190,9 @@ class ButtonRow extends View {
     goBackButton = WhiteTextButton.with({
       content: 'Go back',
       useBoxShadow: false,
+      bold: false,
       properties:{
-        fontSize: '16px'
+        fontSize: '18px'
       },
       backgroundProperties: {
         borderRadius: '4px 0px 0px 4px',
@@ -220,8 +211,9 @@ class ButtonRow extends View {
     transferButton = WhiteTextButton.with({
       content: 'Protecc my bitcoin',
       useBoxShadow: false,
+      bold: false,
       properties:{
-        fontSize: '16px'
+        fontSize: '18px'
       },
       backgroundProperties: {
         borderRadius: '0px 4px 4px 0px',
