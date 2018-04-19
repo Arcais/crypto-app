@@ -1,10 +1,10 @@
 import Surface                    from 'famous/core/Surface.js';
 import {View}                     from 'arva-js/core/View.js';
-import {layout, event }           from 'arva-js/layout/Decorators.js';
-import {TextButton}               from 'arva-kit/buttons/TextButton.js';
-import {IconTextButton}           from 'arva-kit/buttons/IconTextButton.js';
+import {layout, event, bindings }           from 'arva-js/layout/Decorators.js';
+import {WhiteTextButton}               from 'arva-kit/buttons/WhiteTextButton.js';
+import {WhiteIconButton}           from 'arva-kit/buttons/WhiteIconButton.js';
 import {NewIcon}                  from 'arva-kit/icons/NewIcon.js';
-import {SendIcon}                 from 'arva-kit/icons/SendIcon.js';
+import {BadgeIcon}                 from 'arva-kit/icons/BadgeIcon.js';
 import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js';
 import { Injection }              from 'arva-js/utils/Injection.js';
 
@@ -12,18 +12,23 @@ import { DataBoundScrollView }    from 'arva-js/components/DataBoundScrollView.j
 import { PrioritisedArray }       from 'arva-js/data/PrioritisedArray.js';
 
 
+@bindings.setup({
+  accounts: [],
+  userData: {}
+
+})
 @layout.dockPadding(32)
+       // .nativeScrollable() //TODO fix this
 export class HomeView extends View {
 
-    constructor(options){
-      super(options);
-      // this.options.userData.accounts.map( (account,index) => this.addRenderable( new valueBox({account: account,index: index}), index, layout.dockSpace(32), layout.dock.top(128) ) );
-    }
+    @layout.fullSize()
+           .translate(0, 0, -1)
+    background = Surface.with({properties: {backgroundColor: 'rgb(230, 230, 230)'}});
 
     @layout.dock.top(64)
-    @layout.stick.center()
-    @layout.size(true,64)
-    message = new Surface({
+           .stick.center()
+           .size(true,64)
+    message = Surface.with({
       content: `Hello ${this.options.userData.username}, how may we help you today?`,
       properties:{
         'color':'#1c73ba',
@@ -34,25 +39,28 @@ export class HomeView extends View {
     });
 
     @layout.dock.fill()
-    accounts = new DataBoundScrollView({
-      layoutOptions: {
-        spacing: 64
-      },
-      itemTemplate: (account) => {
-        return new ValueBox({account: account});
-      },
-      dataStore: this.options.accounts
-    });
+    accounts = this.options.accounts.map( (account, index) => 
+
+      layout.dockSpace(32)
+             .dock.top(128)(
+      ValueBox.with( {account: ( account || {} ), index: index } )
+      )
+
+    );
 
 
 
 }
 
+
+@bindings.setup({
+  height: 0
+})
 class Panel extends View {
 
     @layout.dock.top(function() {return this.options.height})
-    @layout.stick.center()
-    background = new Surface({
+           .stick.center()
+    background = Surface.with({
     properties:{
       'background-color': 'white',
       'box-shadow': 'rgba(0, 0, 0, 0.12) 0px 0px 8px 0px',
@@ -66,10 +74,13 @@ class Panel extends View {
 
 }
 
+@bindings.setup({
+  accountName: ''
+})
 class Title extends View {
 
     @layout.dock.top(true)
-    background = new Surface({
+    background = Surface.with({
       content:`${this.options.accountName}`,
       properties:{
         'border-bottom': '1px solid rgba(0, 0, 0, 0.1)',
@@ -83,10 +94,14 @@ class Title extends View {
 
 }
 
+@bindings.setup({
+  cash: 0,
+  currency: ''
+})
 class Value extends View {
 
     @layout.dock.top(true)
-    background = new Surface({
+    background = Surface.with({
       content:`${this.options.cash} ${this.options.currency}`,
       properties:{
         'border-bottom': '1px solid rgba(0, 0, 0, 0.1)',
@@ -101,26 +116,30 @@ class Value extends View {
 
 }
 
+@bindings.setup({
+  account: {},
+  index: 0
+})
 class ValueBox extends View {
 
   //Box Background/Panel
 
   @layout.dock.top(0)
-  @layout.translate(0,0,40)
-  mainPanel = new Panel({height:128});
+         .translate(0,0,40)
+  mainPanel = Panel.with({height:128});
 
 
   //Title Panel
 
   @layout._stickTo('topLeft')
-  @layout.translate(0,0,80)
-  @layout.size( 0.5, 40 )
-  titleTab = new Title({accountName: this.options.account.name});
+         .translate(0,0,80)
+         .size( 0.5, 40 )
+  titleTab = Title.with({accountName: this.options.account.name});
 
   @layout._stickTo('topRight')
-  @layout.translate(0,0,80)
-  @layout.size( 0.5, 40 )
-  valueTab = new Value({cash: this.options.account.cash, currency: this.options.account.currency});
+         .translate(0,0,80)
+         .size( 0.5, 40 )
+  valueTab = Value.with({cash: this.options.account.cash, currency: this.options.account.currency});
 
 
   //Buttons Panel
@@ -128,12 +147,12 @@ class ValueBox extends View {
 
 
   @event.on('mousedown',function(){
-    this._eventOutput.emit('Deposit',this.options.account.uid);
+    this._eventOutput.emit('Deposit',this.options.index);
   })
-  @layout.align(0,0.45)
-  @layout.translate(0,0,80)
-  @layout.size(1/3,88)
-  depositButton = new IconTextButton({
+  @layout.align(0,0.31)
+         .translate(0,0,80)
+         .size(1/3,88)
+  depositButton = WhiteIconButton.with({
     icon: NewIcon,
     useBoxShadow: false,
     backgroundProperties: {
@@ -148,13 +167,13 @@ class ValueBox extends View {
   });
 
   @event.on('mousedown',function(){
-    this._eventOutput.emit('Withdraw',this.options.account.uid);
+    this._eventOutput.emit('Withdraw',this.options.index);
   })
-  @layout.align(1/3,0.45)
-  @layout.translate(0,0,80)
-  @layout.size(1/3,88)
-  withdrawButton = new IconTextButton({
-    icon: SendIcon,
+  @layout.align(1/3,0.31)
+         .translate(0,0,80)
+         .size(1/3,88)
+  withdrawButton = WhiteIconButton.with({
+    icon: BadgeIcon,
     useBoxShadow: false,
     backgroundProperties: {
       borderRadius: '0px',
@@ -168,16 +187,17 @@ class ValueBox extends View {
   });
 
   @event.on('mousedown',function(){
-    this._eventOutput.emit('Transfer',this.options.account.uid);
+    this._eventOutput.emit('Transfer',this.options.index);
   })
-  @layout.align(2/3,0.45)
-  @layout.translate(0,0,80)
-  @layout.size(1/3,88)
-  transferButton = new TextButton({
+  @layout.align(2/3,0.31)
+         .translate(0,0,80)
+         .size(1/3,88)
+  transferButton = WhiteTextButton.with({
     content: 'Transfer',
     useBoxShadow: false,
+    bold: false,
     properties:{
-      fontSize: '16px'
+      fontSize: '18px',
     },
     backgroundProperties: {
       borderRadius: '0px',

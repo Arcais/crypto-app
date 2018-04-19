@@ -1,8 +1,8 @@
-# Crypto App
+# Arva Seed
+A seed project for cross platform apps based on Arva. Please use Node version `5.12.0`.
 
-## Usage
-- Run `npm run build` in the app's folder
-- Open the www/index.html file in the browser
-- Go wild 🎉
+## Installation
+Instructions can be found <a href="http://arva.io/arva-js/manual/overview/tutorial.html">here</a>.
 
-[//]: <> (Build Markdown with 'CTRL+SHIFT+M')
+## License
+NPOSL-3.0

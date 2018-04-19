@@ -1,11 +1,16 @@
 import Surface                    from 'famous/core/Surface.js';
 import {View}                     from 'arva-js/core/View.js';
-import {layout, event }           from 'arva-js/layout/Decorators.js';
-import {TextButton}               from 'arva-kit/buttons/TextButton.js';
+import {layout, event, bindings }           from 'arva-js/layout/Decorators.js';
+import {WhiteTextButton}               from 'arva-kit/buttons/WhiteTextButton.js';
 import {Dropdown}                 from 'arva-kit/input/Dropdown.js';
 import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js';
 
-
+@bindings.setup({
+  account: {},
+  selectedCurrency: '',
+  depositedMoney: '',
+  addedCash: 0
+})
 @layout.dockPadding(32)
 export class DepositView extends View {
 
@@ -82,10 +87,15 @@ export class DepositView extends View {
 
     }
 
+
+    @layout.fullSize()
+           .translate(0, 0, -1)
+    background = Surface.with({properties: {backgroundColor: 'rgb(230, 230, 230)'}});
+    
     @layout.dock.top(64)
-    @layout.stick.center()
-    @layout.size(true,64)
-    title = new Surface({
+           .stick.center()
+           .size(true,64)
+    title = Surface.with({
       content: `Deposit Crypto`,
       properties:{
         'font-size':'22px',
@@ -94,15 +104,16 @@ export class DepositView extends View {
       }
     });
 
+    // @event.on('value', )
     @layout.dock.top(104)
-    @layout.stick.center()
-    @layout.size(0.99,48)
-    depositInput = new CoinInputRow();
+           .stick.center()
+           .size(0.99,48)
+    depositInput = CoinInputRow.with();
 
     @layout.dock.top(32)
-    @layout.stick.center()
-    @layout.size(true,32)
-    currentBalance = new Surface({
+           .stick.center()
+           .size(true,32)
+    currentBalance = Surface.with({
       content: `Current balance: ${this.options.account.cash} ${this.options.account.currency}`,
       properties:{
         'font-size':'18px',
@@ -112,9 +123,9 @@ export class DepositView extends View {
     });
 
     @layout.dock.top(32)
-    @layout.stick.center()
-    @layout.size(true,32)
-    newBalance = new Surface({
+           .stick.center()
+           .size(true,32)
+    newBalance = Surface.with({
       content: `New balance: ${this.options.depositedMoney} ${this.options.selectedCurrency}`,
       properties:{
         'font-size':'18px',
@@ -125,8 +136,8 @@ export class DepositView extends View {
     });
 
     @layout.dockSpace(32)
-    @layout.dock.top(64)
-    buttons = new ButtonRow();
+           .dock.top(64)
+    buttons = ButtonRow.with();
 
 
 
@@ -137,8 +148,8 @@ export class DepositView extends View {
 class CoinInputRow extends View {
 
     @layout.stick.left()
-    @layout.size( (5/6) - (1/100) ,64)
-    depositField = new SingleLineInputSurface({
+           .size( (5/6) - (1/100) ,64)
+    depositField = SingleLineInputSurface.with({
       placeholder: 'Amount to deposit',
       activeColor: '#1c73ba',
       inactiveColor: '#3a3a3a',
@@ -148,8 +159,8 @@ class CoinInputRow extends View {
     });
 
     @layout.stick.right()
-    @layout.size(1/6,64)
-    coinDropdown = new Dropdown({
+           .size(1/6,64)
+    coinDropdown = Dropdown.with({
       items:[{
         text: 'BTC',
         data: 'BTC',
@@ -185,8 +196,8 @@ class ButtonRow extends View {
       this._eventOutput.emit('Home');
     })
     @layout.stick.left()
-    @layout.size(1/2,64)
-    goBackButton = new TextButton({
+           .size(1/2,64)
+    goBackButton = WhiteTextButton.with({
       content: 'Go back',
       useBoxShadow: false,
       properties:{
@@ -205,8 +216,8 @@ class ButtonRow extends View {
       this._eventOutput.emit('Home');
     })
     @layout.stick.right()
-    @layout.size(1/2,64)
-    transferButton = new TextButton({
+           .size(1/2,64)
+    transferButton = WhiteTextButton.with({
       content: 'Protecc my bitcoin',
       useBoxShadow: false,
       properties:{

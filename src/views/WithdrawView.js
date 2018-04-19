@@ -1,11 +1,16 @@
 import Surface                    from 'famous/core/Surface.js';
 import {View}                     from 'arva-js/core/View.js';
-import {layout, event }           from 'arva-js/layout/Decorators.js';
-import {TextButton}               from 'arva-kit/buttons/TextButton.js';
+import {layout, event, bindings }           from 'arva-js/layout/Decorators.js';
+import {WhiteTextButton}               from 'arva-kit/buttons/WhiteTextButton.js';
 import {Dropdown}                 from 'arva-kit/input/Dropdown.js';
 import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js';
 
-
+@bindings.setup({
+  account: {},
+  selectedCurrency: '',
+  withdrawnTotal: '',
+  withdrawnCash: 0
+})
 @layout.dockPadding(32)
 export class WithdrawView extends View {
 
@@ -211,7 +216,7 @@ class ButtonRow extends View {
     })
     @layout.stick.left()
     @layout.size(1/2,64)
-    goBackButton = new TextButton({
+    goBackButton = new WhiteTextButton({
       content: 'Go back',
       useBoxShadow: false,
       properties:{
@@ -231,7 +236,7 @@ class ButtonRow extends View {
     })
     @layout.stick.right()
     @layout.size(1/2,64)
-    transferButton = new TextButton({
+    transferButton = new WhiteTextButton({
       content: 'Gimme emone',
       useBoxShadow: false,
       properties:{

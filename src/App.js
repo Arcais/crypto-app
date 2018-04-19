@@ -9,7 +9,7 @@ import {Router}                     from 'arva-js/core/Router.js';
 import {provide}                    from 'arva-js/utils/di/Decorators.js';
 import {Injection}                  from 'arva-js/utils/Injection.js';
 import {DataSource}                 from 'arva-js/data/DataSource.js';
-import {DialogManager}              from 'arva-js/utils/DialogManager.js';
+import {dialogManager}              from 'arva-js/utils/DialogManager.js';
 
 import {setColors}                  from 'arva-kit/defaults/DefaultColors.js';
 import {useTypefaces}               from 'arva-kit/defaults/DefaultTypefaces.js';
@@ -35,16 +35,11 @@ export class App extends ArvaApp {
 
 
     /* Define which DataSource to use */
-    static defaultDataSource() {
+    // static defaultDataSource() {
         /* Firebase initialization */
-        firebase.initializeApp({
-            apiKey: 'AIzaSyAa1hdy3ZTTQ7_uRlGNRKb4tWR1Fk_kBnY',
-            authDomain: 'crypto-arc.firebaseapp.com',
-            databaseURL: 'https://crypto-arc.firebaseio.com/',
-            storageBucket: 'gs://crypto-arc.appspot.com/'
-        });
-        return new FirebaseDataSource('/', {});
-    }
+        // return new FirebaseDataSource('/', {});
+    // }
+
 
     /**
      *  Called before the App is constructed and before the basic components (Router, Famous Context, Controllers,
@@ -52,9 +47,11 @@ export class App extends ArvaApp {
      */
     static initialize() {
         /* Change initial route, view animation or something needed before we start */
-        provide(DataSource)(App.defaultDataSource);
+        // provide(DataSource)(App.defaultDataSource);
 
-        useTypefaces({TextBody: {fontSize: '16px', fontFamily: 'avenir-light'}});
+
+
+        useTypefaces({TextBody: {fontSize: '16px'}});
 
         setColors({
             PrimaryUIColor: '#1c73ba',
@@ -77,17 +74,25 @@ export class App extends ArvaApp {
 
         /* Set default controller specifications */
         Injection.get(Router).setControllerSpecs({
-            HomeController:{
-                
-            }
+            // HomeController:{
+            //     methods: {
+            //         next: {
+            //             transition: { duration: 400, curve: Easing.outBack },
+            //             animation: AnimationController.Animation.Slide.Left
+            //         },
+            //         previous: {
+            //             transition: { duration: 400, curve: Easing.outBack },
+            //             animation: AnimationController.Animation.Slide.Right
+            //         }
+            //     }
+            // }
         });
-
-        let dialogManager = Injection.get(DialogManager);
+        
         let menu = Injection.get(NavigationDrawer, {
             topMenuOptions: { defaultTitle: 'Arva Application' },
             sideMenu: {
                 viewClass: ImageSideMenuView,
-                image: 'https://www.bizboard.nl/img/tauro.jpg',
+                image: 'https://i.imgur.com/0XWJ2gP.png',
                 menuItems: [{
                     icon: AccountIcon,
                     text: 'Account Info'
@@ -97,8 +102,6 @@ export class App extends ArvaApp {
 
         menu.setNavigationDrawerEnabled(true);
         menu.on('rightButtonClick', ()=> {});
-
-        Object.assign(this.references, {menu, dialogManager});
 
     }
 

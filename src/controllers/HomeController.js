@@ -1,3 +1,5 @@
+import firebase                     from 'firebase';
+
 //Dependencies
 import { Controller }                 from 'arva-js/core/Controller.js';
 import { Router }                     from 'arva-js/core/Router.js';
@@ -14,6 +16,15 @@ import { User, Users }                      from '../models/UserModel.js'
 import { Account, Accounts }                      from '../models/AccountModel.js'
 
 
+firebase.initializeApp({
+  apiKey: 'AIzaSyAa1hdy3ZTTQ7_uRlGNRKb4tWR1Fk_kBnY',
+  authDomain: 'crypto-arc.firebaseapp.com',
+  databaseURL: 'https://crypto-arc.firebaseio.com/',
+  storageBucket: 'gs://crypto-arc.appspot.com/'
+});
+
+let db = firebase.database();
+
 
 export class HomeController extends Controller {
 
@@ -29,45 +40,45 @@ export class HomeController extends Controller {
 
   async Index () {
 
-    console.log(1);
-
     if (!this.HomeView) {
 
-      const [userDataFromDB] = await Promise.all([
-          Injection.get(User, 1).once('value')
-      ]);
-      const accounts = Injection.get(Accounts,null,null,{ path: `Users/${1}/accounts` });
+      const userRef = db.ref('/Users/0');
 
-      this.HomeView = new HomeView({userData: userDataFromDB, accounts});
+      let usersList = await userRef.once('value');
+
+      const userDataFromDB = usersList.val();
+
+      this.HomeView = new HomeView({userData: userDataFromDB, accounts: userDataFromDB.accounts});
 
       this.HomeView.on('Deposit', (accountIndex) => {
         this.router.go('Home','Deposit',{accountID: accountIndex});
       })
 
       this.HomeView.on('Withdraw', (accountIndex) => {
-        console.log(accountIndex);
         this.router.go('Home','Withdraw',{accountID: accountIndex});
       })
 
       this.HomeView.on('Transfer', (accountIndex) => {
-        console.log(accountIndex);
         this.router.go('Home','Transfer',{accountID: accountIndex});
       })
 
     }
-
+    
     return this.HomeView;
+
   }
 
   async Deposit (accountID){
 
     if (!this.DepositView[accountID]) {
 
-      const [account] = await Promise.all([
-          Injection.get(Account, accountID, null, {path:`Users/${1}/accounts`}).once('value')
-      ]);
+      const userRef = db.ref(`/Users/0/accounts/${accountID}`);
 
-      this.DepositView[accountID] = new DepositView({account, selectedCurrency: account.currency, depositedMoney: account.cash});
+      let accountDataPromise = await userRef.once('value');
+
+      const accountData = accountDataPromise.val();
+
+      this.DepositView[accountID] = new DepositView({account: accountData, selectedCurrency: accountData.currency, depositedMoney: accountData.cash});
 
       this.DepositView[accountID].on('Home', () => {
         this.router.go('Home','Index');
@@ -83,9 +94,12 @@ export class HomeController extends Controller {
 
     if (!this.WithdrawView[accountID]) {
 
-      const [account] = await Promise.all([
-          Injection.get(Account, accountID, null, {path:`Users/${1}/accounts`}).once('value')
-      ]);
+      const account = {
+      "cash" : 3678.83,
+      "currency" : "BTC",
+      "name" : "Main Account",
+      "uid" : 1
+    };
 
       this.WithdrawView[accountID] = new WithdrawView({account, selectedCurrency: account.currency, withdrawnTotal: account.cash});
 
@@ -103,9 +117,12 @@ export class HomeController extends Controller {
 
     if (!this.TransferView[accountID]) {
 
-      const [account] = await Promise.all([
-          Injection.get(Account, accountID, null, {path:`Users/${1}/accounts`}).once('value')
-      ]);
+      const account = {
+      "cash" : 3678.83,
+      "currency" : "BTC",
+      "name" : "Main Account",
+      "uid" : 1
+    };
 
       this.TransferView[accountID] = new TransferView({account});
 
