@@ -8,8 +8,9 @@ import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js
 @bindings.setup({
   account: {},
   selectedCurrency: '',
-  depositedMoney: '',
+  depositedMoney: 0,
   addedCash: 0,
+  exchangeRate: 1,
   httpGetChangeRate: function(fromCurrency, toCurrency, callback){
 
     let xmlHttp = new XMLHttpRequest();
@@ -60,6 +61,8 @@ export class DepositView extends View {
 
               let ratesModifier = JSON.parse(res);
 
+              self.options.exchangeRate = ratesModifier[self.options.account.currency];
+
               self.options.depositedMoney = self.options.account.cash + (self.options.addedCash*ratesModifier[self.options.account.currency]);
 
             });
@@ -86,6 +89,8 @@ export class DepositView extends View {
 
           let ratesModifier = JSON.parse(res);
 
+          self.options.exchangeRate = ratesModifier[currentCurrency];
+
           self.options.depositedMoney = self.options.account.cash + ( ( self.options.addedCash || 0 ) * ratesModifier[currentCurrency] );
 
         });
@@ -96,28 +101,40 @@ export class DepositView extends View {
            .size(0.99,48)
     depositInput = CoinInputRow.with({accountCurrency: this.options.account.currency});
 
-    @layout.dock.top(32)
+    @layout.dock.top(48)
            .stick.center()
            .size(true,32)
     currentBalance = Surface.with({
       content: `Current balance: ${this.options.account.cash.toFixed(2)} ${this.options.account.currency}`,
       properties:{
         'font-size':'18px',
-        'text-align':'left',
+        'text-align':'center',
         'line-height': '32px'
       }
     });
 
-    @layout.dock.top(32)
+    @layout.dock.top(48)
            .stick.center()
-           .size(true,32)
+           .size(true,48)
+    transactionInfo = this.options.exchangeRate!=1 ? Surface.with({
+      content: `Currently exchanging ${this.options.addedCash.toFixed(2)} ${this.options.selectedCurrency} at a rate of ${this.options.exchangeRate.toFixed(4)} per ${this.options.account.currency}`,
+      properties:{
+        'font-size':'16px',
+        'text-align':'center',
+        'line-height': '48px'
+      }
+    }) : '';
+
+    @layout.dock.top(48)
+           .stick.center()
+           .size(true,48)
     newBalance = Surface.with({
       content: `New balance: ${this.options.depositedMoney.toFixed(2)} ${this.options.account.currency}`,
       properties:{
         'font-size':'18px',
         'color': '#1c73ba',
-        'text-align':'left',
-        'line-height': '32px'
+        'text-align':'center',
+        'line-height': '64px'
       }
     });
 
@@ -183,7 +200,7 @@ class CoinInputRow extends View {
 class ButtonRow extends View {
 
     @event.on('mousedown', function(){
-      this._eventOutput.emit('Home');
+      this._eventOutput.emit('GoBackFromDeposit');
     })
     @layout.stick.left()
            .size(1/2,64)
@@ -204,12 +221,12 @@ class ButtonRow extends View {
     });
 
     @event.on('mousedown', function(){
-      this._eventOutput.emit('Home');
+      this._eventOutput.emit('DoDeposit');
     })
     @layout.stick.right()
            .size(1/2,64)
     transferButton = WhiteTextButton.with({
-      content: 'Protecc my bitcoin',
+      content: 'Deposit',
       useBoxShadow: false,
       bold: false,
       properties:{

@@ -54,7 +54,7 @@ class CoinInputRow extends View {
 class ButtonRow extends View {
 
     @event.on('mousedown', function(){
-      this._eventOutput.emit('Home');
+      this._eventOutput.emit('GoBackFromTransfer');
     })
     @layout.stick.left()
            .size(1/2,64)
@@ -75,12 +75,12 @@ class ButtonRow extends View {
     });
 
     @event.on('mousedown', function(){
-      this._eventOutput.emit('Home');
+      this._eventOutput.emit('DoTransfer');
     })
     @layout.stick.right()
            .size(1/2,64)
     transferButton = WhiteTextButton.with({
-      content: 'Gimme emone',
+      content: 'Send',
       useBoxShadow: false,
       bold: false,
       properties:{

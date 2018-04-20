@@ -102,7 +102,7 @@ class Value extends View {
 
     @layout.dock.top(true)
     background = Surface.with({
-      content:`${this.options.cash} ${this.options.currency}`,
+      content:`${this.options.cash.toFixed(2)} ${this.options.currency}`,
       properties:{
         'border-bottom': '1px solid rgba(0, 0, 0, 0.1)',
         'text-align': 'right',

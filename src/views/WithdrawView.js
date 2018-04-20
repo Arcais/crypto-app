@@ -9,8 +9,9 @@ import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js
 
   account: {},
   selectedCurrency: '',
-  withdrawnTotal: '',
+  withdrawnTotal: 0,
   withdrawnCash: 0,
+  exchangeRate: 1,
   httpGetChangeRate: function(fromCurrency, toCurrency, callback){
 
     let xmlHttp = new XMLHttpRequest();
@@ -49,49 +50,49 @@ export class WithdrawView extends View {
 
     @event
     .on('valueChange', function(newCash){
+
         this.options.withdrawnCash = Number(newCash);
-        console.log(this.options.withdrawnCash);
+
         if(this.options.withdrawnCash > 0){
-        console.log(this.options.withdrawnCash);
-        console.log(this.options.account.currency);
-        console.log(this.options.selectedCurrency);
-        console.log(this.options.account.currency === this.options.selectedCurrency);
 
           if(this.options.account.currency !== this.options.selectedCurrency){
-        console.log(this.options.withdrawnCash);
 
             let self = this; //I KNOW scope keeping is not safe but it's just a demo app and it doesn't need workarounds
 
             this.options.httpGetChangeRate( this.options.selectedCurrency, this.options.account.currency, function(res){
-              console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-              console.log(res);
+              
               let ratesModifier = JSON.parse(res);
-              console.log(self.options.account.cash);
 
-              console.log(self.options.withdrawnCash);
-              console.log(ratesModifier);
-              console.log(ratesModifier[self.options.account.currency]);
+              self.options.exchangeRate = ratesModifier[self.options.account.currency];
 
               let tempWithdrawnTotal = self.options.account.cash - (self.options.withdrawnCash*ratesModifier[self.options.account.currency]);
 
               if(tempWithdrawnTotal>0){
+
                 self.options.withdrawnTotal = tempWithdrawnTotal;
-                console.log(self.options.withdrawnTotal);
+
               }
               else{
-                console.log('You need about '+tempWithdrawnTotal+' more.');
+
+                self.options.withdrawnCash = self.options.account.cash/ratesModifier[self.options.account.currency];
+                self.options.withdrawnTotal = 0;
+
               }
 
             });
           }
           else{
+
             let tempWithdrawnTotal = this.options.account.cash - this.options.withdrawnCash;
             if(tempWithdrawnTotal>0){
               this.options.withdrawnTotal = tempWithdrawnTotal;
-              console.log(this.options.withdrawnTotal);
             }
             else{
-              console.log('You need about '+tempWithdrawnTotal+' more.');
+
+              this.options.withdrawnCash = this.options.account.cash;
+              // this.options.withdrawnCash = 
+              this.options.withdrawnTotal = 0;
+
             }
           }
         }
@@ -106,20 +107,24 @@ export class WithdrawView extends View {
         this.options.selectedCurrency=newCurrency;
 
         this.options.httpGetChangeRate(newCurrency,currentCurrency,function(res){
-          let ratesModifier = JSON.parse(res);
-          console.log(self.options.cash);
 
-          console.log(self.options.withdrawnCash);
+          let ratesModifier = JSON.parse(res);
+
+          self.options.exchangeRate = ratesModifier[currentCurrency];
 
           let tempWithdrawnTotal = self.options.account.cash - ( ( self.options.withdrawnCash || 0 ) * ratesModifier[currentCurrency] );
+
           if(tempWithdrawnTotal>0){
+
             self.options.withdrawnTotal = tempWithdrawnTotal;
-            console.log(self.options.withdrawnTotal);
+
           }
           else{
-            console.log('You need about '+tempWithdrawnTotal+' more.');
-          }
 
+            self.options.withdrawnCash = self.options.account.cash/ratesModifier[currentCurrency];
+            self.options.withdrawnTotal = 0;
+
+          }
 
         });
 
@@ -140,6 +145,18 @@ export class WithdrawView extends View {
         'line-height': '32px'
       }
     });
+
+    @layout.dock.top(48)
+           .stick.center()
+           .size(true,48)
+    transactionInfo = this.options.exchangeRate!=1 ? Surface.with({
+      content: `Currently exchanging ${this.options.withdrawnCash.toFixed(2)} ${this.options.selectedCurrency} at a rate of ${this.options.exchangeRate.toFixed(4)} per ${this.options.account.currency}`,
+      properties:{
+        'font-size':'16px',
+        'text-align':'center',
+        'line-height': '48px'
+      }
+    }) : '';
 
     @layout.dock.top(32)
            .stick.center()
@@ -214,7 +231,7 @@ class CoinInputRow extends View {
 class ButtonRow extends View {
 
     @event.on('mousedown', function(){
-      this._eventOutput.emit('Home');
+      this._eventOutput.emit('GoBackFromWithdraw');
     })
     @layout.stick.left()
            .size(1/2,64)
@@ -235,12 +252,12 @@ class ButtonRow extends View {
     });
 
     @event.on('mousedown', function(){
-      this._eventOutput.emit('Home');
+      this._eventOutput.emit('DoWithdraw');
     })
     @layout.stick.right()
            .size(1/2,64)
     transferButton = WhiteTextButton.with({
-      content: 'Gimme emone',
+      content: 'Withdraw',
       useBoxShadow: false,
       bold: false,
       properties:{

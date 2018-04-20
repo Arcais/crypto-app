@@ -95,7 +95,7 @@ export class App extends ArvaApp {
                 image: 'https://i.imgur.com/0XWJ2gP.png',
                 menuItems: [{
                     icon: AccountIcon,
-                    text: 'Account Info'
+                    text: 'Account Management'
                 }]
             }
         });
@@ -117,7 +117,5 @@ document.addEventListener('deviceready', App.initialize.bind(App));
 
 
 //TODO:
-//-update wtihdraw
-//-send data to firebase
 //-finish transfer functionality
 //-integrate THAT to firebase

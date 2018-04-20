@@ -10,6 +10,7 @@ import { HomeView }                   from '../views/HomeView.js'
 import { DepositView }                from '../views/DepositView.js'
 import { WithdrawView }               from '../views/WithdrawView.js'
 import { TransferView }               from '../views/TransferView.js'
+import { TransactionFinishedView }    from '../views/TransactionFinished.js'
 
 //Models
 import { User, Users }                      from '../models/UserModel.js'
@@ -52,14 +53,17 @@ export class HomeController extends Controller {
 
       this.HomeView.on('Deposit', (accountIndex) => {
         this.router.go('Home','Deposit',{accountID: accountIndex});
+        this.HomeView = undefined;
       })
 
       this.HomeView.on('Withdraw', (accountIndex) => {
         this.router.go('Home','Withdraw',{accountID: accountIndex});
+        this.HomeView = undefined;
       })
 
       this.HomeView.on('Transfer', (accountIndex) => {
         this.router.go('Home','Transfer',{accountID: accountIndex});
+        this.HomeView = undefined;
       })
 
     }
@@ -80,8 +84,15 @@ export class HomeController extends Controller {
 
       this.DepositView[accountID] = new DepositView({account: accountData, selectedCurrency: accountData.currency, depositedMoney: accountData.cash});
 
-      this.DepositView[accountID].on('Home', () => {
+      this.DepositView[accountID].on('GoBackFromDeposit', () => {
         this.router.go('Home','Index');
+        this.DepositView[accountID] = undefined;
+      });
+
+      this.DepositView[accountID].on('DoDeposit', () => {
+        userRef.update({'cash': this.DepositView[accountID].options.depositedMoney })
+        this.router.go('Home','TransactionFinished');
+        this.DepositView[accountID] = undefined;
       });
 
     }
@@ -102,8 +113,15 @@ export class HomeController extends Controller {
 
       this.WithdrawView[accountID] = new WithdrawView({account: accountData, selectedCurrency: accountData.currency, withdrawnTotal: accountData.cash});
 
-      this.WithdrawView[accountID].on('Home', () => {
+      this.WithdrawView[accountID].on('GoBackFromWithdraw', () => {
         this.router.go('Home','Index');
+        this.WithdrawView[accountID] = undefined;
+      });
+      
+      this.WithdrawView[accountID].on('DoWithdraw', () => {
+        userRef.update({'cash': this.WithdrawView[accountID].options.withdrawnTotal })
+        this.router.go('Home','Index');
+        this.WithdrawView[accountID] = undefined;
       });
 
     }
@@ -124,13 +142,37 @@ export class HomeController extends Controller {
 
       this.TransferView[accountID] = new TransferView({account: accountData});
 
-      this.TransferView[accountID].on('Home', () => {
+      this.TransferView[accountID].on('GoBackFromTransfer', () => {
         this.router.go('Home','Index');
+        this.TransferView[accountID] = undefined;
+      });
+      
+      this.TransferView[accountID].on('DoTransfer', () => {
+        this.router.go('Home','Index');
+        this.TransferView[accountID] = undefined;
       });
 
     }
 
     return this.TransferView[accountID];
+
+  }
+
+  async TransactionFinished (){
+
+    if (!this.TransactionFinishedView) {
+
+      this.TransactionFinishedView = new TransactionFinishedView();
+
+      console.log(1);
+
+      let self = this;
+
+      setTimeout(function(){  console.log(2); self.router.go('Home','Index'); console.log(3); self.TransactionFinishedView = undefined; }, 5000);
+
+    }
+
+    return this.TransactionFinishedView;
 
   }
   
