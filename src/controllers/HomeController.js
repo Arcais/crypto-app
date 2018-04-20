@@ -90,9 +90,22 @@ export class HomeController extends Controller {
       });
 
       this.DepositView[accountID].on('DoDeposit', () => {
-        userRef.update({'cash': this.DepositView[accountID].options.depositedMoney })
-        this.router.go('Home','TransactionFinished');
-        this.DepositView[accountID] = undefined;
+
+        let self = this;
+        
+        userRef.update({'cash': this.DepositView[accountID].options.depositedMoney }, function(err){
+          
+          if(err){
+            console.log(err);
+          }
+          else{
+            self.router.go('Home','TransactionFinished');
+            self.DepositView[accountID] = undefined;
+
+          }
+
+        })
+      
       });
 
     }
@@ -119,9 +132,22 @@ export class HomeController extends Controller {
       });
       
       this.WithdrawView[accountID].on('DoWithdraw', () => {
-        userRef.update({'cash': this.WithdrawView[accountID].options.withdrawnTotal })
-        this.router.go('Home','Index');
-        this.WithdrawView[accountID] = undefined;
+
+        let self = this;
+
+        userRef.update({'cash': this.WithdrawView[accountID].options.withdrawnTotal }, function(err){
+
+          if(err){
+            console.log(err);
+          }
+          else{
+            self.router.go('Home','TransactionFinished');
+            self.WithdrawView[accountID] = undefined;
+          }
+          
+        });
+
+
       });
 
     }
@@ -164,11 +190,12 @@ export class HomeController extends Controller {
 
       this.TransactionFinishedView = new TransactionFinishedView();
 
-      console.log(1);
-
       let self = this;
 
-      setTimeout(function(){  console.log(2); self.router.go('Home','Index'); console.log(3); self.TransactionFinishedView = undefined; }, 5000);
+      setTimeout(function(){  
+        self.router.go('Home','Index');
+        self.TransactionFinishedView = undefined;
+      }, 5000);
 
     }
 
