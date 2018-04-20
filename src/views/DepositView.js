@@ -49,9 +49,9 @@ export class DepositView extends View {
     @event
     .on('valueChange', function(newCash){
 
-        this.options.addedCash = Number(newCash);
+        if(Number(newCash) > 0){
 
-        if(this.options.addedCash > 0){
+          this.options.addedCash = Number(newCash);
 
           if(this.options.account.currency !== this.options.selectedCurrency){
 
@@ -101,7 +101,7 @@ export class DepositView extends View {
            .size(0.99,48)
     depositInput = CoinInputRow.with({accountCurrency: this.options.account.currency});
 
-    @layout.dock.top(48)
+    @layout.dock.top(32)
            .stick.center()
            .size(true,32)
     currentBalance = Surface.with({
@@ -125,16 +125,16 @@ export class DepositView extends View {
       }
     }) : '';
 
-    @layout.dock.top(48)
+    @layout.dock.top(32)
            .stick.center()
-           .size(true,48)
+           .size(true,32)
     newBalance = Surface.with({
       content: `New balance: ${this.options.depositedMoney.toFixed(2)} ${this.options.account.currency}`,
       properties:{
         'font-size':'18px',
         'color': '#1c73ba',
         'text-align':'center',
-        'line-height': '64px'
+        'line-height': '32px'
       }
     });
 

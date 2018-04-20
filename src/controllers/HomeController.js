@@ -76,9 +76,9 @@ export class HomeController extends Controller {
 
     if (!this.DepositView[accountID]) {
 
-      const userRef = db.ref(`/Users/0/accounts/${accountID}`);
+      const accountRef = db.ref(`/Users/0/accounts/${accountID}`);
 
-      let accountDataPromise = await userRef.once('value');
+      let accountDataPromise = await accountRef.once('value');
 
       const accountData = accountDataPromise.val();
 
@@ -93,7 +93,7 @@ export class HomeController extends Controller {
 
         let self = this;
         
-        userRef.update({'cash': this.DepositView[accountID].options.depositedMoney }, function(err){
+        accountRef.update({'cash': this.DepositView[accountID].options.depositedMoney }, function(err){
           
           if(err){
             console.log(err);
@@ -118,9 +118,9 @@ export class HomeController extends Controller {
 
     if (!this.WithdrawView[accountID]) {
 
-      const userRef = db.ref(`/Users/0/accounts/${accountID}`);
+      const accountRef = db.ref(`/Users/0/accounts/${accountID}`);
 
-      let accountDataPromise = await userRef.once('value');
+      let accountDataPromise = await accountRef.once('value');
 
       const accountData = accountDataPromise.val();
 
@@ -135,7 +135,7 @@ export class HomeController extends Controller {
 
         let self = this;
 
-        userRef.update({'cash': this.WithdrawView[accountID].options.withdrawnTotal }, function(err){
+        accountRef.update({'cash': this.WithdrawView[accountID].options.withdrawnTotal }, function(err){
 
           if(err){
             console.log(err);
@@ -144,7 +144,7 @@ export class HomeController extends Controller {
             self.router.go('Home','TransactionFinished');
             self.WithdrawView[accountID] = undefined;
           }
-          
+
         });
 
 
@@ -160,13 +160,19 @@ export class HomeController extends Controller {
 
     if (!this.TransferView[accountID]) {
 
-      const userRef = db.ref(`/Users/0/accounts/${accountID}`);
+      const accountsRef = db.ref(`/Users/0/accounts`);
 
-      let accountDataPromise = await userRef.once('value');
+      let accountsDataPromise = await accountsRef.once('value');
 
-      const accountData = accountDataPromise.val();
+      const accountsData = accountsDataPromise.val();
 
-      this.TransferView[accountID] = new TransferView({account: accountData});
+      this.TransferView[accountID] = new TransferView({
+        accounts: accountsData,
+        currentAccountID: accountID,
+        selectedAccountID: accountID!=0 ? 0 : 1,
+        transferTotalMainAccount: accountsData[accountID].cash,
+        transferTotalSecondAccount: accountsData[accountID!=0 ? 0 : 1].cash
+      });
 
       this.TransferView[accountID].on('GoBackFromTransfer', () => {
         this.router.go('Home','Index');
@@ -174,8 +180,25 @@ export class HomeController extends Controller {
       });
       
       this.TransferView[accountID].on('DoTransfer', () => {
-        this.router.go('Home','Index');
-        this.TransferView[accountID] = undefined;
+
+        let self = this;
+        let transferDefer = {};
+
+        transferDefer['/'+accountID+'/cash'] = this.TransferView[accountID].options.transferTotalMainAccount;
+        transferDefer['/'+this.TransferView[accountID].options.selectedAccountID+'/cash'] = this.TransferView[accountID].options.transferTotalSecondAccount;
+
+        accountsRef.update(transferDefer, function(err){
+
+          if(err){
+            console.log(err);
+          }
+          else{
+            self.router.go('Home','TransactionFinished');
+            self.TransferView[accountID] = undefined;
+          }
+
+        });
+
       });
 
     }

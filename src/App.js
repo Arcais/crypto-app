@@ -49,8 +49,6 @@ export class App extends ArvaApp {
         /* Change initial route, view animation or something needed before we start */
         // provide(DataSource)(App.defaultDataSource);
 
-
-
         useTypefaces({TextBody: {fontSize: '16px'}});
 
         setColors({
@@ -58,6 +56,7 @@ export class App extends ArvaApp {
             SecondaryUIColor: '#fab03f'
         });
         this.start();
+
     }
 
     /**
@@ -74,18 +73,6 @@ export class App extends ArvaApp {
 
         /* Set default controller specifications */
         Injection.get(Router).setControllerSpecs({
-            // HomeController:{
-            //     methods: {
-            //         next: {
-            //             transition: { duration: 400, curve: Easing.outBack },
-            //             animation: AnimationController.Animation.Slide.Left
-            //         },
-            //         previous: {
-            //             transition: { duration: 400, curve: Easing.outBack },
-            //             animation: AnimationController.Animation.Slide.Right
-            //         }
-            //     }
-            // }
         });
 
         let menu = Injection.get(NavigationDrawer, {
@@ -114,8 +101,3 @@ export class App extends ArvaApp {
 }
 
 document.addEventListener('deviceready', App.initialize.bind(App));
-
-
-//TODO:
-//-finish transfer functionality
-//-integrate THAT to firebase

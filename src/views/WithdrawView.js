@@ -51,9 +51,9 @@ export class WithdrawView extends View {
     @event
     .on('valueChange', function(newCash){
 
-        this.options.withdrawnCash = Number(newCash);
+        if(Number(newCash) > 0){
 
-        if(this.options.withdrawnCash > 0){
+          this.options.withdrawnCash = Number(newCash);
 
           if(this.options.account.currency !== this.options.selectedCurrency){
 
@@ -141,7 +141,7 @@ export class WithdrawView extends View {
       content: `Current balance: ${this.options.account.cash.toFixed(2)} ${this.options.account.currency}`,
       properties:{
         'font-size':'18px',
-        'text-align':'left',
+        'text-align':'center',
         'line-height': '32px'
       }
     });
@@ -166,7 +166,7 @@ export class WithdrawView extends View {
       properties:{
         'font-size':'18px',
         'color': '#1c73ba',
-        'text-align':'left',
+        'text-align':'center',
         'line-height': '32px'
       }
     });
