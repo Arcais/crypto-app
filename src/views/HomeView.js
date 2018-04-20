@@ -4,7 +4,8 @@ import {layout, event, bindings }           from 'arva-js/layout/Decorators.js';
 import {WhiteTextButton}               from 'arva-kit/buttons/WhiteTextButton.js';
 import {WhiteIconButton}           from 'arva-kit/buttons/WhiteIconButton.js';
 import {NewIcon}                  from 'arva-kit/icons/NewIcon.js';
-import {BadgeIcon}                 from 'arva-kit/icons/BadgeIcon.js';
+import {WithdrawIcon}                 from 'arva-kit/icons/WithdrawIcon.js';
+import {TransferIcon}                 from 'arva-kit/icons/TransferIcon.js';
 import {SingleLineInputSurface}   from 'arva-kit/input/SingleLineInputSurface.js';
 import { Injection }              from 'arva-js/utils/Injection.js';
 
@@ -160,8 +161,8 @@ class ValueBox extends View {
       backgroundColor: 'transparent'
     },
     iconProperties:{
-      width:24,
-      height:24
+      width:46,
+      height:46
     }
 
   });
@@ -173,18 +174,31 @@ class ValueBox extends View {
          .translate(0,0,80)
          .size(1/3,88)
   withdrawButton = WhiteIconButton.with({
-    icon: BadgeIcon,
+    icon: WithdrawIcon,
     useBoxShadow: false,
     backgroundProperties: {
       borderRadius: '0px',
       backgroundColor: 'transparent'
     },
     iconProperties:{
-      width:32,
-      height:32
+      width:104,
+      height:104
     }
 
   });
+  // withdrawButton = WhiteTextButton.with({
+  //   content:'Withdraw',
+  //   useBoxShadow: false,
+  //   bold: false,
+  //   backgroundProperties: {
+  //     borderRadius: '0px',
+  //     backgroundColor: 'transparent'
+  //   },
+  //   properties:{
+  //     fontSize: '18px',
+  //   }
+
+  // });
 
   @event.on('mousedown',function(){
     this._eventOutput.emit('Transfer',this.options.index);
@@ -192,17 +206,30 @@ class ValueBox extends View {
   @layout.align(2/3,0.31)
          .translate(0,0,80)
          .size(1/3,88)
-  transferButton = WhiteTextButton.with({
-    content: 'Transfer',
+  // transferButton = WhiteTextButton.with({
+  //   content: 'Transfer',
+  //   useBoxShadow: false,
+  //   bold: false,
+  //   properties:{
+  //     fontSize: '18px',
+  //   },
+  //   backgroundProperties: {
+  //     borderRadius: '0px',
+  //     backgroundColor: 'transparent',
+  //     textAlign: 'center'
+  //   }
+
+  // });
+  transferButton = WhiteIconButton.with({
+    icon: TransferIcon,
     useBoxShadow: false,
-    bold: false,
-    properties:{
-      fontSize: '18px',
-    },
     backgroundProperties: {
       borderRadius: '0px',
-      backgroundColor: 'transparent',
-      textAlign: 'center'
+      backgroundColor: 'transparent'
+    },
+    iconProperties:{
+      width:104,
+      height:104
     }
 
   });
